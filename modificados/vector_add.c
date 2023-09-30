@@ -9,7 +9,6 @@ void Allocate_vectors(double** local_x_pp, double** local_y_pp, double** local_z
 void Generate_random_vector(double local_a[], int local_n);
 void Print_first_last_elements(double local_b[], int local_n, char vec_name[], int my_rank, MPI_Comm comm);
 double Parallel_vector_dot_product(double local_x[], double local_y[], int local_n);
-double dot_product_result = Parallel_vector_dot_product(local_x, local_y, local_n);
 void Parallel_scalar_vector_product(double local_x[], double local_y[], double scalar, int local_n);
 
 int main(void) {
@@ -36,7 +35,7 @@ int main(void) {
     Print_first_last_elements(local_y, local_n, "y", my_rank, comm);
 
     start_time = clock(); 
-    Parallel_vector_dot_product(local_x, local_y, local_n);
+    double dot_product_result = Parallel_vector_dot_product(local_x, local_y, local_n);
     end_time = clock(); 
 
     double total_time_dot_product = (double)(end_time - start_time) / CLOCKS_PER_SEC;
@@ -47,13 +46,13 @@ int main(void) {
 
     double total_time_scalar_product = (double)(end_time - start_time) / CLOCKS_PER_SEC;
 
-    //Print_first_last_elements(local_z, local_n, "Dot Product Result (local)", my_rank, comm);
+    // Print_first_last_elements(local_z, local_n, "Dot Product Result (local)", my_rank, comm);
 
-    Parallel_scalar_vector_product(local_x, local_y, scalar, local_n);
     Print_first_last_elements(local_y, local_n, "Scalar Vector Product Result (local)", my_rank, comm);
 
    if (my_rank == 0) {
       printf("Scalar: %.2f\n", scalar);
+      printf("Dot Product Result: %.6f\n", dot_product_result);
       printf("Total Time for Dot Product: %.6f seconds\n", total_time_dot_product); 
       printf("Total Time for Scalar Vector Product: %.6f seconds\n", total_time_scalar_product); 
    }
@@ -88,7 +87,7 @@ void Read_n(int* n_p, int* local_n_p, int my_rank, int comm_sz, MPI_Comm comm) {
     char *fname = "Read_n";
 
     if (my_rank == 0) {
-        *n_p = 100000; // Set the order of the vectors to at least 100,000
+        *n_p = 1000000; // Set the order of the vectors to at least 100,000
     }
     MPI_Bcast(n_p, 1, MPI_INT, 0, comm);
     if (*n_p <= 0 || *n_p % comm_sz != 0) local_ok = 0;
